@@ -1,29 +1,51 @@
-import json
+import streamlit as st
 import pickle
-from flask import Flask, request, app, jsonify, url_for, render_template
-import numpy as np
-import pandas as pd
+import string 
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+ps = PorterStemmer()
+#this function can also be exported using pickle
+def transform_text(text):
+    text = text.lower() #convert to lowercase
+    text = nltk.word_tokenize(text) #create a list of all the words
 
-app = Flask(__name__)
-regmodel = pickle.load(open('reg_model.pkl', 'rb'))
-scalar=pickle.load(open('scaling.pkl','rb'))
+    y = [] #removing special characters
+    for i in text:
+        if i.isalnum():
+            y.append(i)
+
+    text = y[:]
+    y.clear()
+
+    for i in text:
+        if i not in stopwords.words('english') and i  not in string.punctuation:
+            y.append(i)
+    
+    text = y[:]
+    y.clear()
+    for i in text:
+         y.append(ps.stem(i))
+
+    return " ".join(y)
 
 
-#home page
-@app.route('/')
-def home():
-    return render_template('home.html')
+tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
+model = pickle.load(open('model.pkl', 'rb'))
 
-#api 
-@app.route('/predict_api', methods=['POST'])
-def predict_api():
-    data = request.json['data'] 
-    print(data) 
-    print(np.array(list(data.values())).reshape(1, -1))
-    new_data = np.array(list(data.values())) #removed the reshape here
-    output = regmodel.predict(new_data, '')
-    print(output[0])
-    return jsonify(output[0])
-if __name__ == "__main__":
-    app.run(debug = True)
+st.title("Email/SMS Spam CLassifier")
+input_sms = st.text_area("Enter the message")
 
+if st.button('Predict'):
+# 1. preprocessing 2. vectorize 3. predict 4. display
+    transformed_sms = transform_text(input_sms)
+
+    vector_input = tfidf.transform([transformed_sms])
+
+    result = model.predict(vector_input)[0]
+
+
+    if result == 1:
+        st.header("Spam")
+    else:
+        st.header("Not Spam")
