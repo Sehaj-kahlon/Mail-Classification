@@ -33,8 +33,37 @@ def transform_text(text):
 tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
 model = pickle.load(open('model.pkl', 'rb'))
 
-st.title("Email/SMS Spam CLassifier")
-input_sms = st.text_area("Enter the message")
+# Add css to make text bigger
+st.markdown(
+    """
+    <style>
+    textarea {
+        font-size: 1.5rem !important;
+    }
+    input {
+        font-size: 3rem !important;
+    }
+    label{
+        font-size: 89rem !important;
+    }
+    .css-1yy6isu p {
+    word-break: break-word;
+    font-size: 40px;
+    }
+    p, ol, ul, dl {
+    margin: 0px 0px 1rem;
+    padding: 0px;
+    font-size: 1.5rem;
+    font-weight: 400;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+st.title("Email/SMS Spam Classifier")
+# original_title = '<p style="font-family:Sans serif; font-size: 40px;">Enter the Message</p>'
+# st.markdown(original_title, unsafe_allow_html=True)
+input_sms = st.text_area(label = "Enter the Message" )
 
 if st.button('Predict'):
 # 1. preprocessing 2. vectorize 3. predict 4. display
