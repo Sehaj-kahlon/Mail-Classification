@@ -5,6 +5,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 nltk.download('punkt')
+nltk.download('stopwords')
 ps = PorterStemmer()
 #this function can also be exported using pickle
 def transform_text(text):
